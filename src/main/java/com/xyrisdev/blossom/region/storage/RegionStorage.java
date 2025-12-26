@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Stream;
@@ -29,13 +30,11 @@ public class RegionStorage {
 			.create();
 
 	private final Path path;
-	private final ExecutorService executor;
+	private volatile ExecutorService executor;
 
 	public RegionStorage() {
         this.path = RegenerationPlugin.instance().getDataFolder().toPath().resolve("data");
-		this.executor = Executors.newFixedThreadPool(4, new ThreadFactoryBuilder()
-				.setNameFormat("Blossom IO Thread %d")
-				.build());
+		this.executor = createExecutor();
 
 		try {
 			Files.createDirectories(path);
@@ -43,6 +42,25 @@ public class RegionStorage {
 			XLogger.custom().fatal("Failed to create data folder");
 			XLogger.stackTrace(e);
 		}
+	}
+
+	private static @NotNull ExecutorService createExecutor() {
+		return Executors.newFixedThreadPool(4, new ThreadFactoryBuilder()
+				.setNameFormat("Blossom IO Thread %d")
+				.build());
+	}
+
+	private @NotNull ExecutorService executor() {
+		ExecutorService current = executor;
+		if (current == null || current.isShutdown() || current.isTerminated()) {
+			synchronized (this) {
+				current = executor;
+				if (current == null || current.isShutdown() || current.isTerminated()) {
+					executor = current = createExecutor();
+				}
+			}
+		}
+		return current;
 	}
 
 	public @NotNull Optional<Region> load(@NotNull String name) {
@@ -83,7 +101,7 @@ public class RegionStorage {
 	}
 
 	public void save(@NotNull Region region) {
-		executor.submit(() -> {
+		final Runnable task = () -> {
 			final Path file = path.resolve(region.getName() + ".json");
 			try {
 				Files.writeString(file, GSON.toJson(region));
@@ -91,12 +109,21 @@ public class RegionStorage {
 				XLogger.custom().fatal("Failed to save region: " + region.getName());
 				XLogger.stackTrace(e);
 			}
-			return null;
-		});
+		};
+
+		try {
+			executor().submit(() -> {
+				task.run();
+				return null;
+			});
+		} catch (RejectedExecutionException e) {
+			XLogger.custom().warn("Region save rejected by IO executor; running inline for: " + region.getName());
+			task.run();
+		}
 	}
 
 	public void delete(@NotNull String name) {
-		executor.submit(() -> {
+		final Runnable task = () -> {
 			final Path file = path.resolve(name + ".json");
 			try {
 				Files.deleteIfExists(file);
@@ -104,11 +131,23 @@ public class RegionStorage {
 				XLogger.custom().fatal("Failed to delete region: " + name);
 				XLogger.stackTrace(e);
 			}
-			return null;
-		});
+		};
+
+		try {
+			executor().submit(() -> {
+				task.run();
+				return null;
+			});
+		} catch (RejectedExecutionException e) {
+			XLogger.custom().warn("Region delete rejected by IO executor; running inline for: " + name);
+			task.run();
+		}
 	}
 
 	public void shutdown() {
-		executor.shutdown();
+		final ExecutorService current = executor;
+		if (current != null && !current.isShutdown()) {
+			current.shutdown();
+		}
 	}
 }

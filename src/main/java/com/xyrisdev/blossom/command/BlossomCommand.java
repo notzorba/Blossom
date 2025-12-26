@@ -27,7 +27,7 @@ public class BlossomCommand {
 					sender.sendRichMessage("<b><gradient:#8c75a5:#f46c90>Blossom</gradient></b> <gray>(v" + version + ")</gray>");
 					sender.sendRichMessage("<hover:show_text:'<gray>Click to star on GitHub!</gray>'><click:open_url:https://github.com/Darkxx14/Blossom><gray>Star</gray> <gradient:#8c75a5:#f46c90>Blossom</gradient> <gray>on GitHub!</gray></click></hover>");
 					sender.sendRichMessage(" ");
-					sender.sendRichMessage("<gradient:#8c75a5:#f46c90>/blossom create</gradient> <gray>→ Create a new region.</gray>");
+					sender.sendRichMessage("<gradient:#8c75a5:#f46c90>/blossom create <name></gradient> <gray>→ Create a new region from your WorldEdit selection.</gray>");
 					sender.sendRichMessage("<gradient:#8c75a5:#f46c90>/blossom manage <region></gradient> <gray>→ View/edit a region.</gray>");
 					sender.sendRichMessage("<gradient:#8c75a5:#f46c90>/blossom regenerate <region></gradient> <gray>→ Regenerate a specific region.</gray>");
 					sender.sendRichMessage("<gradient:#8c75a5:#f46c90>/blossom interval <region> <time> <unit></gradient> <gray>→ Set regeneration interval for a region.</gray>");
@@ -50,7 +50,7 @@ public class BlossomCommand {
 							sender.sendRichMessage("<b><gradient:#8c75a5:#f46c90>Blossom</gradient></b> <gray>(v" + version + ")</gray>");
 							sender.sendRichMessage("<hover:show_text:'<gray>Click to star on GitHub!</gray>'><click:open_url:https://github.com/Darkxx14/Blossom><gray>Star</gray> <gradient:#8c75a5:#f46c90>Blossom</gradient> <gray>on GitHub!</gray></click></hover>");
 							sender.sendRichMessage(" ");
-							sender.sendRichMessage("<gradient:#8c75a5:#f46c90>/blossom create</gradient> <gray>→ Create a new region.</gray>");
+							sender.sendRichMessage("<gradient:#8c75a5:#f46c90>/blossom create <name></gradient> <gray>→ Create a new region from your WorldEdit selection.</gray>");
 							sender.sendRichMessage("<gradient:#8c75a5:#f46c90>/blossom manage <region></gradient> <gray>→ View/edit a region.</gray>");
 							sender.sendRichMessage("<gradient:#8c75a5:#f46c90>/blossom regenerate <region></gradient> <gray>→ Regenerate a specific region.</gray>");
 							sender.sendRichMessage("<gradient:#8c75a5:#f46c90>/blossom interval <region> <time> <unit></gradient> <gray>→ Set regeneration interval for a region.</gray>");
